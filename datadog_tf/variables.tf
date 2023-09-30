@@ -42,3 +42,21 @@ variable "datadog_app_key" {
   type      = string
   sensitive = true
 }
+
+variable "datadog_users" {
+  type = map(object({
+    name  = optional(string)
+    email = optional(string)
+  }))
+  default = {
+    "ivan" = {
+      email = "ivan@providentcrm.com"
+    }
+    "andrei" = {
+      email = "andrei.copacel@providentcrm.com"
+    }
+    "mathias" = {
+      email = "mathias.goulart@providentcrm.com"
+    }
+  }
+}
