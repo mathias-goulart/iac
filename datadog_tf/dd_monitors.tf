@@ -1,17 +1,17 @@
-resource "datadog_monitor" "foo" {
-  name               = "Name for monitor foo"
-  type               = "service check"
-  message            = "Monitor triggered. Notify: @hipchat-channel"
-  escalation_message = "Escalation message @pagerduty"
+# resource "datadog_monitor" "foo" {
+#   name               = "Name for monitor foo"
+#   type               = "service check"
+#   message            = "Monitor triggered. Notify: @hipchat-channel"
+#   escalation_message = "Escalation message @pagerduty"
 
-  query = "avg(last_1h):avg:aws.ec2.cpu{environment:foo,host:foo} by {host} > 4"
+#   query = "avg(last_1h):avg:aws.ec2.cpu{environment:foo,host:foo} by {host} > 4"
 
-  monitor_thresholds {
-    warning  = 2
-    critical = 4
-  }
+#   monitor_thresholds {
+#     warning  = 2
+#     critical = 4
+#   }
 
-  include_tags = true
+#   include_tags = true
 
-  tags = ["foo:bar", "team:fooBar"]
-}
+#   tags = ["foo:bar", "team:fooBar"]
+# }
