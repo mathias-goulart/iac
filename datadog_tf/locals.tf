@@ -45,6 +45,11 @@ locals {
     vpn_gateway = "tgw-0b18ae4e420f936f9"
   }
 
+  availability_zones = { for az in var.select_availability_zones : "${data.aws_region.current_region.name}${az}" => {
+    region      = "${data.aws_region.current_region.name}"
+    region_name = "${data.aws_region.current_region.description}"
+    az_name     = "${data.aws_region.current_region.name}${az}"
+  } }
 
   private_sub_names = { for az in var.select_availability_zones : "PrivateSubnet${upper(az)}" => {
     az_name = "${data.aws_region.current_region.name}${az}"
@@ -61,5 +66,7 @@ locals {
     "PublicSubnetA" : cidrsubnet(var.vpc_cidr_block, 2, 2),
     "PublicSubnetB" : cidrsubnet(var.vpc_cidr_block, 2, 3)
   }
+
+  notification_users_str = join(" ", [for k, v in var.datadog_users : "@${v.email}"])
 
 }
