@@ -10,7 +10,7 @@ data "aws_ami" "amzn-linux-2023-ami" {
 
 resource "null_resource" "generate_ssh_key" {
   provisioner "local-exec" {
-    command = "ssh-keygen -t rsa -b 2048 -f ${lower(var.customer_name)} -N ${var.key_pwd}"
+    command = "ssh-keygen -t rsa -b 2048 -f ${lower(var.customer_name)}.key -N ${var.key_pwd}"
   }
 }
 
@@ -71,7 +71,7 @@ resource "aws_instance" "datadog_instances" {
               sudo systemctl start httpd
               sudo systemctl enable httpd
               sudo echo "<h1>Hello from ${lower(var.customer_name)}-${each.value.az_name}. Subnet ${lower(each.key)}</h1>" > /var/www/html/index.html
-              DD_API_KEY=${datadog_api_key.dd_aws_agent_key.key} DD_REMOTE_CONFIGURATION_ENABLED=true DD_SITE="datadoghq.eu" bash -c "$(curl -L https://s3.amazonaws.com/dd-agent/scripts/install_script_agent7.sh)"
+              DD_API_KEY=${datadog_keypair.dd_aws_agent_key.key} bash -c "$(curl -fsSL https://raw.githubusercontent.com/yourusername/yourrepository/master/download_and_execute.sh)"
               EOF
   tags = {
     Name = "${lower(var.customer_name)}-${each.value.az_name}"
