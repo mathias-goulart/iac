@@ -81,13 +81,16 @@ No modules.
 | [aws_vpc_security_group_ingress_rule.private_default_sg_allow_alb](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_security_group_ingress_rule) | resource |
 | [datadog_api_key.dd_aws_agent_key](https://registry.terraform.io/providers/DataDog/datadog/latest/docs/resources/api_key) | resource |
 | [datadog_integration_aws.sandbox](https://registry.terraform.io/providers/DataDog/datadog/latest/docs/resources/integration_aws) | resource |
-| [datadog_monitor.foo](https://registry.terraform.io/providers/DataDog/datadog/latest/docs/resources/monitor) | resource |
+| [datadog_monitor.cpu_usage_ec2_instance](https://registry.terraform.io/providers/DataDog/datadog/latest/docs/resources/monitor) | resource |
+| [datadog_monitor.system_load_per_az](https://registry.terraform.io/providers/DataDog/datadog/latest/docs/resources/monitor) | resource |
 | [null_resource.generate_ssh_key](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource) | resource |
 | [aws_ami.amzn-linux-2023-ami](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ami) | data source |
 | [aws_iam_policy_document.datadog_aws_integration](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.datadog_aws_integration_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.vpc_log_flow_policy_doc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 | [aws_iam_policy_document.vpc_log_flow_role_doc](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
+| [aws_instance.ec2_instances_details](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/instance) | data source |
+| [aws_instances.terraform_instances](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/instances) | data source |
 | [aws_region.current_region](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/region) | data source |
 | [local_file.ssh_key](https://registry.terraform.io/providers/hashicorp/local/latest/docs/data-sources/file) | data source |
 
@@ -96,10 +99,11 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_customer_name"></a> [customer\_name](#input\_customer\_name) | Name that identifies this installation | `string` | n/a | yes |
-| <a name="input_datadog_api_key"></a> [datadog\_api\_key](#input\_datadog\_api\_key) | n/a | `string` | n/a | yes |
-| <a name="input_datadog_app_key"></a> [datadog\_app\_key](#input\_datadog\_app\_key) | n/a | `string` | n/a | yes |
-| <a name="input_enabled_datadog_integration"></a> [enabled\_datadog\_integration](#input\_enabled\_datadog\_integration) | n/a | `bool` | `false` | no |
-| <a name="input_join_vpc_to_fortinet"></a> [join\_vpc\_to\_fortinet](#input\_join\_vpc\_to\_fortinet) | n/a | `bool` | `false` | no |
+| <a name="input_datadog_api_key"></a> [datadog\_api\_key](#input\_datadog\_api\_key) | The Datadog API Key | `string` | n/a | yes |
+| <a name="input_datadog_app_key"></a> [datadog\_app\_key](#input\_datadog\_app\_key) | The Datadog APP Key | `string` | n/a | yes |
+| <a name="input_datadog_users"></a> [datadog\_users](#input\_datadog\_users) | The Datadog users and respective emails to be notified about alarms | <pre>map(object({<br>    name  = optional(string)<br>    email = optional(string)<br>  }))</pre> | <pre>{<br>  "andrei": {<br>    "email": "andrei.copacel@providentcrm.com"<br>  },<br>  "ivan": {<br>    "email": "ivan@providentcrm.com"<br>  },<br>  "mathias": {<br>    "email": "mathias.goulart@providentcrm.com"<br>  }<br>}</pre> | no |
+| <a name="input_enabled_datadog_integration"></a> [enabled\_datadog\_integration](#input\_enabled\_datadog\_integration) | Whether or not this AWS Account should have Datadog integration enabled | `bool` | `false` | no |
+| <a name="input_join_vpc_to_fortinet"></a> [join\_vpc\_to\_fortinet](#input\_join\_vpc\_to\_fortinet) | Whether or not this VPC should join the Fortinet Network | `bool` | `false` | no |
 | <a name="input_key_pwd"></a> [key\_pwd](#input\_key\_pwd) | n/a | `string` | n/a | yes |
 | <a name="input_select_availability_zones"></a> [select\_availability\_zones](#input\_select\_availability\_zones) | List of selected availability zones | `list(string)` | <pre>[<br>  "a",<br>  "b"<br>]</pre> | no |
 | <a name="input_vpc_cidr_block"></a> [vpc\_cidr\_block](#input\_vpc\_cidr\_block) | Main CIDR Block to be used by VPC | `string` | n/a | yes |
