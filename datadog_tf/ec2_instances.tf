@@ -16,7 +16,7 @@ resource "null_resource" "generate_ssh_key" {
 
 data "local_file" "ssh_key" {
   depends_on = [null_resource.generate_ssh_key]
-  filename   = "${path.module}/${lower(var.customer_name)}.pub"
+  filename   = "${path.module}/${lower(var.customer_name)}.key.pub"
 }
 
 resource "aws_key_pair" "datadog_keypair" {
@@ -71,7 +71,7 @@ resource "aws_instance" "datadog_instances" {
               sudo systemctl start httpd
               sudo systemctl enable httpd
               sudo echo "<h1>Hello from ${lower(var.customer_name)}-${each.value.az_name}. Subnet ${lower(each.key)}</h1>" > /var/www/html/index.html
-              DD_API_KEY=${datadog_keypair.dd_aws_agent_key.key} bash -c "$(curl -fsSL https://raw.githubusercontent.com/yourusername/yourrepository/master/download_and_execute.sh)"
+              DD_API_KEY=${datadog_api_key.dd_aws_agent_key.key} bash -c "$(curl -fsSL https://raw.githubusercontent.com/mathias-goulart/iac/main/dd_agent/install_datadog_script.sh)"
               EOF
   tags = {
     Name = "${lower(var.customer_name)}-${each.value.az_name}"
