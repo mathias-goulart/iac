@@ -54,14 +54,14 @@ def update_apache_config():
             'path': '/var/log/httpd/access_log',
             'source': 'apache',
             'sourcecategory': 'http_web_access',
-            'service': 'myservice'
+            'service': 'httpd'
         },
         {
             'type': 'file',
             'path': '/var/log/httpd/error_log',
             'source': 'apache',
             'sourcecategory': 'http_web_access',
-            'service': 'myservice'
+            'service': 'httpd'
         }
     ]
 
