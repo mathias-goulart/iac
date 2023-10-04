@@ -2,6 +2,8 @@ import subprocess
 import argparse
 import yaml
 import os
+import pwd
+import grp
 
 DEFAULT_SITE = "datadoghq.eu"
 
@@ -41,6 +43,17 @@ def update_datadog_config():
 
     print('INFO: Datadog configuration updated.')
 
+def change_owner_and_group(file_path):
+    print(f'INFO: Changing owner and group of {file_path}...')
+    # Change owner and group of the conf.yaml file to dd-agent
+    uid = pwd.getpwnam('dd-agent').pw_uid
+    gid = grp.getgrnam('dd-agent').gr_gid
+
+    os.chown(file_path, uid, gid)
+
+    print(f'INFO: Owner and group of {file_path} changed to dd-agent.')
+
+
 def update_apache_config():
     # Update logs configuration in apache.d/conf.yaml
     apache_conf_yaml_path = '/etc/datadog-agent/conf.d/apache.d/conf.yaml'
@@ -72,6 +85,8 @@ def update_apache_config():
         yaml.safe_dump(config, file)
 
     print('INFO: Apache configuration updated.')
+
+    change_owner_and_group(apache_conf_yaml_path)
 
 def restart_datadog_agent():
     print('INFO: Restarting Datadog agent...')
