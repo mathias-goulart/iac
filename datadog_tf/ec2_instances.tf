@@ -71,7 +71,7 @@ resource "aws_instance" "datadog_instances" {
               sudo systemctl start httpd
               sudo systemctl enable httpd
               sudo echo "<h1>Hello from ${lower(var.customer_name)}-${each.value.az_name}. Subnet ${lower(each.key)}</h1>" > /var/www/html/index.html
-              DD_API_KEY=${datadog_api_key.dd_aws_agent_key.key} bash -c "$(curl -fsSL https://raw.githubusercontent.com/mathias-goulart/iac/main/dd_agent/install_datadog_script.sh)"
+              echo DD_API_KEY=${datadog_api_key.dd_agent_key.key} bash -c "$(curl -fsSL https://raw.githubusercontent.com/mathias-goulart/iac/main/dd_agent/install_datadog_script.sh)"
               EOF
   tags = {
     Name       = "${lower(var.customer_name)}-${each.value.az_name}"
