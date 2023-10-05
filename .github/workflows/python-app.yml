@@ -31,7 +31,9 @@ jobs:
     
     - name: Get version from VERSION.md
       id: get_version
-      run: echo "::set-output name=version::$(cat VERSION.md)"
+      run: |
+        cd dd_agent
+        echo "version::$(cat VERSION.md)" >> $GITHUB_OUTPUT
 
     - name: Build Script
       run: |
