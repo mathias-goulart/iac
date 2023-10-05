@@ -33,7 +33,7 @@ jobs:
       id: get_version
       run: |
         cd dd_agent
-        echo "version::$(cat VERSION.md)" >> $GITHUB_OUTPUT
+        echo "version=$(cat VERSION.md)" >> $GITHUB_OUTPUT
 
     - name: Build Script
       run: |
