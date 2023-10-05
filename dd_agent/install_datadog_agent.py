@@ -1,9 +1,11 @@
-import subprocess
 import argparse
-import yaml
+import boto3
+import grp
 import os
 import pwd
-import grp
+import subprocess
+import yaml
+from botocore.exceptions import ClientError
 
 DEFAULT_SITE = "datadoghq.eu"
 
@@ -94,11 +96,47 @@ def restart_datadog_agent():
     subprocess.run(['sudo', 'systemctl', 'restart', 'datadog-agent'])
     print('INFO: Datadog agent restarted.')
 
+def get_secret():
+
+    print("INFO: Trying to retrieve secret from Secrets Manager. Please wait")
+    secret_name = "/datadogmgtest/dd/agent"
+    region_name = "eu-west-1"
+
+    # Create a Secrets Manager client
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+
+    try:
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
+    except ClientError as e:
+        # For a list of exceptions thrown, see
+        # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+        print(f"ERROR: Could not retrieve agent key from {secret_name}")
+        print(e)
+        return ""
+
+    print(f"INFO: Got agent key from secret {secret_name}")
+    # Decrypts secret using the associated KMS key.
+    return get_secret_value_response['SecretString']
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Install Datadog agent and update configuration')
-    parser.add_argument('api_key', type=str, help='Datadog API key')
+    parser.add_argument('api_key', type=str, help='Datadog API key', required=False, default="")
 
     args = parser.parse_args()
+
+    api_key = args.api_key
+    if api_key == "":
+        api_key = get_secret()
+    
+    if api_key == "":
+        print("ERROR: There is no agent key defined. Either use env vars (DD_API_KEY) or pass through argument")
+        exit(1)
 
     # Check if Datadog agent is installed and running
     if is_datadog_agent_installed_and_running():

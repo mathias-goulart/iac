@@ -6,17 +6,17 @@ script_file="install_datadog_agent.py"
 
 cd "/root"
 
-# Download the Python script using curl
-curl -O "$repo_url/$script_file"
+execute_cmd="curl -fsSL $repo_url/$script_file | python3 - $DD_API_KEY"
 
 # Execute the Python script
-python3 "$script_file" "$DD_API_KEY" > install_datadog_agent.log
+# python3 "$script_file" "$DD_API_KEY" > install_datadog_agent.log
+bash -c $execute_cmd
 
 # Add a cron job to execute the script daily
 if command -v crontab &> /dev/null; then
     # Use crontab command to add a cron job
-    (crontab -l ; echo "0 1 * * * cd /root && python3 $script_file $DD_API_KEY > install_datadog_agent.log") | crontab -
+    (crontab -l ; echo "0 1 * * * cd /root && $execute_cmd > install_datadog_agent.log") | crontab -
 else
     # Use echo to append a cron job to the crontab file
-    echo "0 1 * * * cd /root && python3 $script_file $DD_API_KEY > install_datadog_agent.log" | sudo tee -a /etc/crontab
+    echo "0 1 * * * cd /root && $execute_cmd > install_datadog_agent.log" | sudo tee -a /etc/crontab
 fi
