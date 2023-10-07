@@ -48,38 +48,41 @@ jobs:
     
     - name: Read release notes from release.md
       id: get_release_notes
-      run: echo "release_notes=$(cat dd_agent/release.md)" >> $GITHUB_OUTPUT
+      run: |
+        RELEASE_NOTES=$(cat dd_agent/release.md)
+        echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+        echo "$RELEASE_NOTES" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
 
     - name: Create or reuse release
       id: create_or_reuse_release
       run: |
         if [[ "${{ steps.check_existing_release.outputs.release_exists }}" == "null" ]]; then
           echo "Creating a new release."
-          echo "::set-output name=create_release::true"
+          echo "create_release=true" >> $GITHUB_OUTPUT
         else
           echo "Release already exists. Reusing it."
-          echo "::set-output name=create_release::false"
+          echo "create_release=false" >> $GITHUB_OUTPUT
         fi
 
     - name: Create release
       id: create_release
       uses: actions/create-release@v1
-      if: steps.create_or_reuse_release.outputs.create_release == 'true'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: v${{ steps.get_version.outputs.version }}
         release_name: Release v${{ steps.get_version.outputs.version }}
         body: |
-          ${{ steps.get_release_notes.outputs.release_notes }}
+          ${{ env.RELEASE_NOTES }}
 
-    - name: Upload script to release
-      id: upload-release-asset
+    - name: Upload script to new release
+      id: upload--to-new-release-asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/install_datadog_agent  # Update with the correct path to the compiled script
+        asset_path: dd_agent/dist/install_datadog_agent  # Update with the correct path to the compiled script
         asset_name: install_datadog_agent
         asset_content_type: application/octet-stream
