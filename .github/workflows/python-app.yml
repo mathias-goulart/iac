@@ -54,36 +54,25 @@ jobs:
         echo "$RELEASE_NOTES" >> $GITHUB_ENV
         echo "EOF" >> $GITHUB_ENV
 
-    - name: Create or reuse release
+    - name: Check if release already exists or create a new one
       id: create_or_reuse_release
       run: |
-        if [[ "${{ steps.check_existing_release.outputs.release_exists }}" == "null" ]]; then
+        set -e
+        release_info=$(gh release list --json tag_name --jq '.[] | select(.tag_name == "v${{ steps.get_version.outputs.version }}")')
+        if [[ -z "$release_info" ]]; then
           echo "Creating a new release."
-          echo "::set-output name=create_release::true"
+          gh release create v${{ steps.get_version.outputs.version }} ./dist/install_datadog_agent --title "Release v${{ steps.get_version.outputs.version }}" --notes "${{ env.RELEASE_NOTES }}"
         else
           echo "Release already exists. Reusing it."
-          echo "::set-output name=create_release::false"
         fi
 
-    - name: Create release
-      id: create_release
-      uses: actions/create-release@v1
-      if: steps.create_or_reuse_release.outputs.create_release == 'true'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: v${{ steps.get_version.outputs.version }}
-        release_name: Release v${{ steps.get_version.outputs.version }}
-        body: |
-          ${{ env.RELEASE_NOTES }}
-
-    - name: Upload script to release
+    - name: Upload install_datadog_agent asset to release
       id: upload-release-asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/install_datadog_agent  # Update with the correct path to the compiled script
+        upload_url: ${{ github.event.repository.releases_url }}
+        asset_path: ./dist/install_datadog_agent  # Update with the correct path to the asset
         asset_name: install_datadog_agent
         asset_content_type: application/octet-stream
