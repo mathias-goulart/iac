@@ -48,11 +48,23 @@ jobs:
     
     - name: Read release notes from release.md
       id: get_release_notes
-      run: echo "release_notes=$(cat dd_agent/release.md)"
+      run: echo "release_notes=$(cat dd_agent/release.md)" >> $GITHUB_OUTPUT
+
+    - name: Create or reuse release
+      id: create_or_reuse_release
+      run: |
+        if [[ "${{ steps.check_existing_release.outputs.release_exists }}" == "null" ]]; then
+          echo "Creating a new release."
+          echo "::set-output name=create_release::true"
+        else
+          echo "Release already exists. Reusing it."
+          echo "::set-output name=create_release::false"
+        fi
 
     - name: Create release
       id: create_release
       uses: actions/create-release@v1
+      if: steps.create_or_reuse_release.outputs.create_release == 'true'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
