@@ -46,6 +46,10 @@ jobs:
       run: |
         cd dd_agent
         pyinstaller --onefile install_datadog_agent.py
+    
+    - name: Read release notes from release.md
+      id: get_release_notes
+      run: echo "release_notes::$(cat dd_agent/release.md)"
 
     - name: Create release
       id: create_release
@@ -56,7 +60,7 @@ jobs:
         tag_name: v${{ steps.get_version.outputs.version }}
         release_name: Release v${{ steps.get_version.outputs.version }}
         body: |
-          Description of the release.
+          ${{ steps.get_release_notes.outputs.release_notes }}
 
     - name: Upload script to release
       id: upload-release-asset
