@@ -9,8 +9,7 @@ on:
   pull_request:
     branches: [ "main" ]
 
-permissions:
-  contents: write
+permissions: write-all
 
 jobs:
   build_and_publish:
@@ -49,7 +48,7 @@ jobs:
     
     - name: Read release notes from release.md
       id: get_release_notes
-      run: echo "release_notes::$(cat dd_agent/release.md)"
+      run: echo "release_notes=$(cat dd_agent/release.md)"
 
     - name: Create release
       id: create_release
