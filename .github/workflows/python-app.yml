@@ -48,7 +48,11 @@ jobs:
     
     - name: Read release notes from release.md
       id: get_release_notes
-      run: echo "release_notes=$(cat dd_agent/release.md)" >> $GITHUB_OUTPUT
+      run: |
+        RELEASE_NOTES=$(cat dd_agent/release.md)
+        echo "RELEASE_NOTES<<EOF" >> $GITHUB_ENV
+        echo "$RELEASE_NOTES" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
 
     - name: Create or reuse release
       id: create_or_reuse_release
@@ -71,7 +75,7 @@ jobs:
         tag_name: v${{ steps.get_version.outputs.version }}
         release_name: Release v${{ steps.get_version.outputs.version }}
         body: |
-          ${{ steps.get_release_notes.outputs.release_notes }}
+          ${{ env.RELEASE_NOTES }}
 
     - name: Upload script to release
       id: upload-release-asset
