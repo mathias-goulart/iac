@@ -45,16 +45,22 @@ def update_datadog_config():
 
     print('INFO: Datadog configuration updated.')
 
-def change_owner_and_group(file_path):
+def change_owner_and_group(file_path, owner, group):
     print(f'INFO: Changing owner and group of {file_path}...')
     # Change owner and group of the conf.yaml file to dd-agent
-    uid = pwd.getpwnam('dd-agent').pw_uid
-    gid = grp.getgrnam('dd-agent').gr_gid
+    uid = pwd.getpwnam(owner).pw_uid
+    gid = grp.getgrnam(group).gr_gid
 
     os.chown(file_path, uid, gid)
 
-    print(f'INFO: Owner and group of {file_path} changed to dd-agent.')
+    print(f'INFO: Owner and group of {file_path} changed to {owner}:{group}.')
 
+def set_permissions(file_path, permissions):
+    print(f'INFO: Setting permissions for {file_path}...')
+    # Set the permissions for the file/folder
+    os.chmod(file_path, permissions)
+
+    print(f'INFO: Permissions set for {file_path}.')
 
 def update_apache_config():
     # Update logs configuration in apache.d/conf.yaml
@@ -88,7 +94,8 @@ def update_apache_config():
 
     print('INFO: Apache configuration updated.')
 
-    change_owner_and_group(apache_conf_yaml_path)
+    change_owner_and_group(apache_conf_yaml_path, 'dd_agent', 'dd_agent')
+    set_permissions('/var/log/httpd', 0o744)
 
 def restart_datadog_agent():
     print('INFO: Restarting Datadog agent...')
@@ -126,11 +133,11 @@ def get_secret():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Install Datadog agent and update configuration')
-    parser.add_argument('api_key', type=str, help='Datadog API key', required=False, default="")
+    parser.add_argument('--key', type=str, help='Datadog API key',default="",required=False)
 
     args = parser.parse_args()
 
-    api_key = args.api_key
+    api_key = args.key
     if api_key == "":
         api_key = get_secret()
     
