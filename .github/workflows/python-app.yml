@@ -80,33 +80,10 @@ jobs:
     - name: Upload script to new release
       id: upload--to-new-release-asset
       uses: actions/upload-release-asset@v1
-      if: steps.create_or_reuse_release.outputs.create_release == 'true'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/install_datadog_agent  # Update with the correct path to the compiled script
-        asset_name: install_datadog_agent
-        asset_content_type: application/octet-stream
-
-    - name: Get release
-      id: get_release
-      if: steps.create_or_reuse_release.outputs.create_release == 'false'
-      uses: jossef/action-latest-release-info@v1.2.2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: v${{ steps.get_version.outputs.version }}
-        release_name: Release v${{ steps.get_version.outputs.version }}
-
-    - name: Upload script to existing release
-      id: upload-to-existing-release-asset
-      uses: actions/upload-release-asset@v1
-      if: steps.create_or_reuse_release.outputs.create_release == 'false'
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.get_release.outputs.upload_url }}
+        upload_url: ${{ github.event.release.upload_url }}
         asset_path: ./dist/install_datadog_agent  # Update with the correct path to the compiled script
         asset_name: install_datadog_agent
         asset_content_type: application/octet-stream
