@@ -70,6 +70,9 @@ resource "aws_instance" "datadog_instances" {
               sudo yum install httpd -y
               sudo systemctl start httpd
               sudo systemctl enable httpd
+              sudo mkdir efs
+              sudo mount -t efs ${aws_efs_file_system.efs_test_ap.id} efs
+              sudo echo "${lower(var.customer_name)}-${each.value.az_name}." > efs/${lower(var.customer_name)}-${each.value.az_name}.txt
               sudo echo "<h1>Hello from ${lower(var.customer_name)}-${each.value.az_name}. Subnet ${lower(each.key)}</h1>" > /var/www/html/index.html
               echo DD_API_KEY=${datadog_api_key.dd_agent_key.key} bash -c "$(curl -fsSL https://raw.githubusercontent.com/mathias-goulart/iac/main/dd_agent/install_datadog_script.sh)"
               EOF
