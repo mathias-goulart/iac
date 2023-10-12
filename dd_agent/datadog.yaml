@@ -1,0 +1,104 @@
+## @param logs_enabled - boolean - optional - default: false
+## @env DD_LOGS_ENABLED - boolean - optional - default: false
+## Enable Datadog Agent log collection by setting logs_enabled to true.
+logs_enabled: false
+
+## @param logs_config - custom object - optional
+## Enter specific configurations for your Log collection.
+## Uncomment this parameter and the one below to enable them.
+## See https://docs.datadoghq.com/agent/logs/
+logs_config:
+
+  ## @param container_collect_all - boolean - optional - default: false
+  ## @env DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL - boolean - optional - default: false
+  ## Enable container log collection for all the containers (see ac_exclude to filter out containers)
+  container_collect_all: false
+
+  ## @param logs_dd_url - string - optional
+  ## @env DD_LOGS_CONFIG_DD_URL - string - optional
+  ## Define the endpoint and port to hit when using a proxy for logs. The logs are forwarded in TCP
+  ## therefore the proxy must be able to handle TCP connections.
+  ## logs_dd_url: <ENDPOINT>:<PORT>
+
+  ## @param logs_no_ssl - boolean - optional - default: false
+  ## @env DD_LOGS_CONFIG_LOGS_NO_SSL - optional - default: false
+  ## Disable the SSL encryption. This parameter should only be used when logs are
+  ## forwarded locally to a proxy. It is highly recommended to then handle the SSL encryption
+  ## on the proxy side.
+  logs_no_ssl: false
+
+  ## @param processing_rules - list of custom objects - optional
+  ## @env DD_LOGS_CONFIG_PROCESSING_RULES - list of custom objects - optional
+  ## Global processing rules that are applied to all logs. The available rules are
+  ## "exclude_at_match", "include_at_match" and "mask_sequences". More information in Datadog documentation:
+  ## https://docs.datadoghq.com/agent/logs/advanced_log_collection/#global-processing-rules
+  ## processing_rules:
+  ##   - type: <RULE_TYPE>
+  ##     name: <RULE_NAME>
+  ##     pattern: <RULE_PATTERN>
+
+  ## @param force_use_http - boolean - optional - default: false
+  ## @env DD_LOGS_CONFIG_FORCE_USE_HTTP - boolean - optional - default: false
+  ## By default, the Agent sends logs in HTTPS batches to port 443 if HTTPS connectivity can
+  ## be established at Agent startup, and falls back to TCP otherwise. Set this parameter to `true` to
+  ## always send logs with HTTPS (recommended).
+  force_use_http: true
+
+  ## @param force_use_tcp - boolean - optional - default: false
+  ## @env DD_LOGS_CONFIG_FORCE_USE_TCP - boolean - optional - default: false
+  ## By default, logs are sent through HTTPS if possible, set this parameter
+  ## to `true` to always send logs via TCP. If `use_http` is set to `true`, this parameter
+  ## is ignored.
+  force_use_tcp: true
+
+  ## @param use_compression - boolean - optional - default: false
+  ## @env DD_LOGS_CONFIG_USE_COMPRESSION - boolean - optional - default: false
+  ## This parameter is available when sending logs with HTTPS. If enabled, the Agent
+  ## compresses logs before sending them.
+  use_compression: true
+
+  ## @param compression_level - integer - optional - default: 6
+  ## @env DD_LOGS_CONFIG_COMPRESSION_LEVEL - boolean - optional - default: false
+  ## The compression_level parameter accepts values from 0 (no compression)
+  ## to 9 (maximum compression but higher resource usage). Only takes effect if
+  ## `use_compression` is set to `true`.
+  compression_level: 6
+
+  ## @param batch_wait - integer - optional - default: 5
+  ## @env DD_LOGS_CONFIG_BATCH_WAIT - integer - optional - default: 5
+  ## The maximum time the Datadog Agent waits to fill each batch of logs before sending.
+  batch_wait: 5
+
+  ## @param open_files_limit - integer - optional - default: 500
+  ## @env DD_LOGS_CONFIG_OPEN_FILES_LIMIT - integer - optional - default: 500
+  ## The maximum number of files that can be tailed in parallel.
+  ## Note: the default for Mac OS is 200. The default for
+  ## all other systems is 500.
+  open_files_limit: 500
+
+  ## @param file_wildcard_selection_mode - string - optional - default: `by_name`
+  ## @env DD_LOGS_CONFIG_FILE_WILDCARD_SELECTION_MODE - string - optional - default: `by_name`
+  ## The strategy used to prioritize wildcard matches if they exceed the open file limit.
+  ##
+  ## Choices are `by_name` and `by_modification_time`.
+  ##
+  ## `by_name` means that each log source is considered and the matching files are ordered
+  ## in reverse name order. While there are less than `logs_config.open_files_limit` files
+  ## being tailed, this process repeats, collecting from each configured source.
+  ##
+  ## `by_modification_time` takes all log sources and first adds any log sources that
+  ## point to a specific file. Next, it finds matches for all wildcard sources.
+  ## This resulting list is ordered by which files have been most recently modified
+  ## and the top `logs_config.open_files_limit` most recently modified files are
+  ## chosen for tailing.
+  ##
+  ## WARNING: `by_modification_time` is less performant than `by_name` and will trigger
+  ## more disk I/O at the configured wildcard log paths.
+  file_wildcard_selection_mode: by_name
+
+  ## @param max_message_size_bytes - integer - optional - default: 256000
+  ## @env DD_LOGS_CONFIG_MAX_MESSAGE_SIZE_BYTES - integer - optional - default : 256000
+  ## The maximum size of single log message in bytes. If maxMessageSizeBytes exceeds
+  ## the documented API limit of 1MB - any payloads larger than 1MB will be dropped by the intake.
+  ## https://docs.datadoghq.com/api/latest/logs/
+  max_message_size_bytes: 256000
