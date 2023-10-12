@@ -15,10 +15,16 @@ jobs:
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
+    
+    - uses: jitterbit/get-changed-files@v1
+      id: list_changes
+      with:
+        format: space-delimited
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Check for Dockerfile changes
       id: dockerfile_changes
-      run: echo "changed=$(git diff --name-only ${{ github.base_ref }}..${{ github.sha }} | grep '^dd_agent/Dockerfile$' || true)" >> $GITHUB_OUTPUT
+      run: echo "changed=$(echo "${{ steps.list_changes.outputs.modified }}" | grep Dockerfile)" >> $GITHUB_OUTPUT
 
     - name: Get version from VERSION.md
       id: version
