@@ -152,11 +152,15 @@ if __name__ == "__main__":
         # Install Datadog agent if not already installed
         install_datadog_agent(args.api_key)
 
-    # Update Datadog configuration
-    update_datadog_config()
+    download_and_install_configs()
 
-    # Restart Datadog agent
     restart_datadog_agent()
 
-    # Update Apache configuration
-    update_apache_config()
+    # # Update Datadog configuration
+    # update_datadog_config()
+
+    # # Restart Datadog agent
+    # 
+
+    # # Update Apache configuration
+    # update_apache_config()
