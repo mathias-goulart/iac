@@ -131,6 +131,51 @@ def get_secret():
     # Decrypts secret using the associated KMS key.
     return get_secret_value_response['SecretString']
 
+def download_and_copy_github_content(repo_owner, repo_name, source_path, destination_path):
+    # GitHub repository API URL
+    github_api_url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/contents/{source_path}"
+
+    try:
+        # Fetch the contents of the repository using the GitHub API
+        response = requests.get(github_api_url)
+        response.raise_for_status()
+        content = response.json()
+
+        # Create destination directory if it doesn't exist
+        if not os.path.exists(destination_path):
+            os.makedirs(destination_path)
+
+        for item in content:
+            # Check if it's a file
+            if item['type'] == 'file':
+                file_url = item['download_url']
+                file_name = os.path.basename(file_url)
+
+                # Download the file
+                file_response = requests.get(file_url)
+                file_response.raise_for_status()
+
+                # Write the file to the destination directory
+                with open(os.path.join(destination_path, file_name), 'wb') as f:
+                    f.write(file_response.content)
+
+                # Change the owner and group of the file
+                os.chown(os.path.join(destination_path, file_name), os.geteuid(), os.getegid())
+
+            # Recursively process subdirectories
+            elif item['type'] == 'dir':
+                subdirectory_source_path = item['path']
+                subdirectory_destination_path = os.path.join(destination_path, os.path.basename(subdirectory_source_path))
+                download_and_copy_github_content(repo_owner, repo_name, subdirectory_source_path, subdirectory_destination_path)
+
+        # Change the owner and group of the destination directory
+        os.chown(destination_path, os.geteuid(), os.getegid())
+
+        print("Download, copy, and ownership change completed successfully.")
+    except requests.exceptions.RequestException as e:
+        print("Error: Failed to fetch or copy GitHub content.")
+        print(e)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Install Datadog agent and update configuration')
     parser.add_argument('--key', type=str, help='Datadog API key',default="",required=False)
@@ -152,7 +197,12 @@ if __name__ == "__main__":
         # Install Datadog agent if not already installed
         install_datadog_agent(args.api_key)
 
-    download_and_install_configs()
+    repo_owner = "mathias-goulart"
+    repo_name = "iac"
+    source_path = "conf.d"
+    destination_path = "/etc/datadog-agent/conf.d"
+
+    download_and_copy_github_content(repo_owner, repo_name, source_path, destination_path)
 
     restart_datadog_agent()
 
