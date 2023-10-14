@@ -30,7 +30,7 @@ jobs:
         changed=FALSE
         for file in $files
         do
-            if [[ eq "$file" "dd_agent/Dockerfile" ]]; then
+            if [[ "$file" == "dd_agent/Dockerfile" ]]; then
                 changed=TRUE
                 break
             fi
