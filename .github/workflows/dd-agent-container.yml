@@ -43,7 +43,9 @@ jobs:
 
     - name: Build Docker image
       if: steps.dockerfile_changes.outputs.changed == 'TRUE'
-      run: docker buildx build --file dd_agent/Dockerfile -t docker.pkg.github.com/${{ github.repository }}/dd_agent:${{ steps.version.outputs.version }} .
+      run: |
+        cd dd_agent
+        docker buildx build --file Dockerfile -t docker.pkg.github.com/${{ github.repository }}/dd_agent:${{ steps.version.outputs.version }} .
 
     - name: Log in to GitHub Container Registry
       if: steps.dockerfile_changes.outputs.changed == 'TRUE'
