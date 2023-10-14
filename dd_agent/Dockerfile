@@ -9,3 +9,6 @@ RUN pip install -r /tmp/scripts/dependencies.txt
 
 # For more details, please refer to datadog official Dockerfile:
 # https://github.com/DataDog/datadog-agent/tree/main/Dockerfiles
+
+# Docker Hub official repo:
+# https://hub.docker.com/r/datadog/agent
