@@ -6,6 +6,7 @@ import pwd
 import subprocess
 import yaml
 from botocore.exceptions import ClientError
+import requests
 
 DEFAULT_SITE = "datadoghq.eu"
 
