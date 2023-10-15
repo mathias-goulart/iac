@@ -1,0 +1,9 @@
+init_config: {}
+
+instances:
+  - metric: customers
+    type: available
+    category: available
+  - metric: customers
+    type: enabled
+    category: enabled
