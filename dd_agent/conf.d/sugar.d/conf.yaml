@@ -1,6 +1,6 @@
-init_config:
+init_config: {}
 
-instances:
+instances: []
 
 ## Log section
 logs:
