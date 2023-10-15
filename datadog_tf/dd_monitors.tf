@@ -1,3 +1,9 @@
+# AWS Costs monitors
+
+# PHP Services monitors
+
+
+# Instance specific monitors
 resource "datadog_monitor" "system_load_per_az" {
   for_each           = local.availability_zones
   name               = "Service Load AZ ${each.key}"
