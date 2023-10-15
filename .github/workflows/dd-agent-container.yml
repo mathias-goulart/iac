@@ -3,8 +3,6 @@ name: Docker Build and Publish
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
   build_and_publish:
@@ -30,10 +28,11 @@ jobs:
         changed=FALSE
         for file in $files
         do
-            if [[ "$file" == "dd_agent/Dockerfile" ]]; then
+            case "dd_agent" in 
+                *"$file"*)
                 changed=TRUE
                 break
-            fi
+            esac
         done
         echo "changed=$changed" >> $GITHUB_OUTPUT
 
@@ -45,16 +44,16 @@ jobs:
       if: steps.dockerfile_changes.outputs.changed == 'TRUE'
       run: |
         cd dd_agent
-        docker buildx build --file Dockerfile -t docker.pkg.github.com/${{ github.repository }}/dd_agent:${{ steps.version.outputs.version }} .
+        docker buildx build --file Dockerfile -t ghcr.io/${{ github.repository }}/dd_agent:${{ steps.version.outputs.version }} .
 
     - name: Log in to GitHub Container Registry
       if: steps.dockerfile_changes.outputs.changed == 'TRUE'
       uses: docker/login-action@v1
       with:
-        registry: docker.pkg.github.com
+        registry: ghcr.io
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Push Docker image to GitHub Container Registry
       if: steps.dockerfile_changes.outputs.changed == 'TRUE'
-      run: docker push docker.pkg.github.com/${{ github.repository }}/dd_agent:${{ steps.version.outputs.version }}
+      run: docker push ghcr.io/${{ github.repository }}/dd_agent:${{ steps.version.outputs.version }}

@@ -4,9 +4,25 @@ instances:
 
 ## Log section
 logs:
-
+  # Collects logs from PHP service
   - type: file
-    path: "<path_to_your_php_application_json>.log"
-    service: "<service_name>"
-    source: php
-    sourcecategory: sourcecode
+    path: "/logging/php/error*.log"
+    service: "php"
+    source: logging
+    sourcecategory: error
+  - type: file
+    path: "/logging/php/php*.log"
+    service: "php"
+    source: logging
+    sourcecategory: access
+  # Collects logs from Customer Specifics Apache service
+  - type: file
+    path: "/logging/apache/*-access.log"
+    service: "apache"
+    source: logging
+    sourcecategory: access
+  - type: file
+    path: "/logging/apache/*-error.log"
+    service: "apache"
+    source: logging
+    sourcecategory: error

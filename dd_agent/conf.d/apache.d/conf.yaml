@@ -253,7 +253,7 @@ instances:
     ## @param tls_verify - boolean - optional - default: true
     ## Instructs the check to validate the TLS certificate of services.
     #
-    # tls_verify: true
+    tls_verify: true
 
     ## @param tls_use_host_header - boolean - optional - default: false
     ## If a `Host` header is set, this enables its use for SNI (matching against the TLS certificate CN or SAN).
@@ -420,6 +420,10 @@ instances:
 logs:
   - type: file
     path: /var/log/apache2/access.log
+    source: apache
+    service: apache
+  - type: file
+    path: /var/log/apache2/other_vhosts_access.log
     source: apache
     service: apache
   - type: file
