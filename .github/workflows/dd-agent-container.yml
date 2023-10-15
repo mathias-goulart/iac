@@ -28,11 +28,10 @@ jobs:
         changed=FALSE
         for file in $files
         do
-            case "dd_agent" in 
-                *"$file"*)
+            if grep -q "dd_agent/" <<< "$file"; then
                 changed=TRUE
                 break
-            esac
+            fi
         done
         echo "changed=$changed" >> $GITHUB_OUTPUT
 

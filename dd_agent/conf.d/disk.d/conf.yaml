@@ -1,6 +1,6 @@
 ## All options defined here are available to all instances.
 #
-init_config:
+init_config: {}
 
     ## @param file_system_global_exclude - list of strings - optional
     ## Instruct the check to always add these patterns to `file_system_exclude`.
