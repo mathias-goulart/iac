@@ -2,6 +2,7 @@ FROM datadog/agent
 
 COPY --chown=dd-agent:dd-agent datadog.yaml /etc/datadog-agent/datadog.yaml
 COPY --chown=dd-agent:dd-agent conf.d /etc/datadog-agent/conf.d
+COPY --chown=dd-agent:dd-agent check.d /etc/datadog-agent/check.d
 
 COPY --chown=dd-agent:dd-agent scripts /tmp/scripts
 
