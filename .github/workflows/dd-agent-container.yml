@@ -43,7 +43,7 @@ jobs:
       if: steps.dockerfile_changes.outputs.changed == 'TRUE'
       run: |
         cd dd_agent
-        docker buildx build --file Dockerfile -t ghcr.io/${{ github.repository }}/dd_agent:${{ steps.version.outputs.version }} .
+        docker build --push -t ghcr.io/${{ github.repository }}/dd_agent:${{ steps.version.outputs.version }} .
 
     - name: Log in to GitHub Container Registry
       if: steps.dockerfile_changes.outputs.changed == 'TRUE'
