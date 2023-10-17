@@ -1,7 +1,7 @@
 ## @param logs_enabled - boolean - optional - default: false
 ## @env DD_LOGS_ENABLED - boolean - optional - default: false
 ## Enable Datadog Agent log collection by setting logs_enabled to true.
-logs_enabled: false
+logs_enabled: true
 
 ## @param logs_config - custom object - optional
 ## Enter specific configurations for your Log collection.

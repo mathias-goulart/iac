@@ -56,7 +56,7 @@ jobs:
     - name: Push Docker image to GitHub Container Registry
       if: steps.dockerfile_changes.outputs.changed == 'TRUE'
       run: |
-        image_list=$(docker images)
+        docker images > image_list
         if grep -q "ghcr.io/${{ github.repository }}/dd_agent:${{ steps.version.outputs.version }}" <<< "$image_list"; then
             docker push ghcr.io/${{ github.repository }}/dd_agent:${{ steps.version.outputs.version }}
         fi
