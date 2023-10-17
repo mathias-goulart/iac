@@ -56,7 +56,19 @@ jobs:
     - name: Push Docker image to GitHub Container Registry
       if: steps.dockerfile_changes.outputs.changed == 'TRUE'
       run: |
-        docker images > image_list
-        if grep -q "ghcr.io/${{ github.repository }}/dd_agent:${{ steps.version.outputs.version }}" <<< "$image_list"; then
+        sudo apt install -y jq
+
+        image_list="$(docker image ls -a --format json)"
+        image_name="ghcr.io/${{ github.repository }}/dd_agent"
+        desired_tag="${{ steps.version.outputs.version }}"
+
+        # Parse the JSON data and check if the desired image and tag exist
+        image_found=$(echo "$image_list" | jq -r "select(.Repository == \"$image_name\" and .Tag == \"$desired_tag\")")
+
+        if [[ ! -z "$image_found" ]]; then
+            echo "Docker image $image_name with tag $desired_tag found."
             docker push ghcr.io/${{ github.repository }}/dd_agent:${{ steps.version.outputs.version }}
-        fi
+        else
+            echo "Docker image $image_name with tag $desired_tag not found."
+        fi  
+        
