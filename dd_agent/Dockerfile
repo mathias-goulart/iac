@@ -6,7 +6,6 @@ COPY --chown=dd-agent:dd-agent check.d /etc/datadog-agent/check.d
 
 COPY --chown=dd-agent:dd-agent scripts /tmp/scripts
 
-USER dd-agent
 RUN pip install -r /tmp/scripts/dependencies.txt
 
 # For more details, please refer to datadog official Dockerfile:
