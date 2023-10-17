@@ -39,12 +39,6 @@ jobs:
       id: version
       run: echo "version=$(cat dd_agent/VERSION.md)" >> $GITHUB_OUTPUT
 
-    - name: Build Docker image
-      if: steps.dockerfile_changes.outputs.changed == 'TRUE'
-      run: |
-        cd dd_agent
-        docker build --push -t ghcr.io/${{ github.repository }}/dd_agent:${{ steps.version.outputs.version }} .
-
     - name: Log in to GitHub Container Registry
       if: steps.dockerfile_changes.outputs.changed == 'TRUE'
       uses: docker/login-action@v1
@@ -52,6 +46,12 @@ jobs:
         registry: ghcr.io
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build Docker image
+      if: steps.dockerfile_changes.outputs.changed == 'TRUE'
+      run: |
+        cd dd_agent
+        docker build --push -t ghcr.io/${{ github.repository }}/dd_agent:${{ steps.version.outputs.version }} .
 
     - name: Push Docker image to GitHub Container Registry
       if: steps.dockerfile_changes.outputs.changed == 'TRUE'
