@@ -4,8 +4,7 @@ terraform {
       source  = "hashicorp/aws"
       version = "> 5, < 6"
     }
-    datadog = {
-      source = "DataDog/datadog"
-    }
   }
 }
+
+data "aws_caller_identity" "current" {}
