@@ -35,8 +35,8 @@ module "datadog" {
   }
 
   aws_integration = {
-    enabled = true
-    account = data.aws_caller_identity.current.account_id
+    enabled    = true
+    account_id = data.aws_caller_identity.current.account_id
   }
 
   server_list = []
