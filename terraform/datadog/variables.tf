@@ -7,12 +7,17 @@ variable "datadog_config" {
       "andrei.copacel@providentcrm.com",
       "mathias.goulart@providentcrm.com"
     ])
-    ssh_private_key_path = optional(string, "${path.module}/ssh_keys")
-    agent_configuration = object({
-      destination  = optional(string, "/etc/datadog-agent/")
-      datadog_yaml = optional(string, "${path.module}/datadog.yaml")
-      conf_d       = optional(string, "${path.module}/conf.d/")
-      check_d      = optional(string, "${path.module}/check.d/")
+    ssh_private_key_path = optional(string, "<ROOT_MODULE_PATH>/ssh_keys")
+    agent_configuration = optional(object({
+      destination  = string
+      datadog_yaml = string
+      conf_d       = string
+      check_d      = string
+      }), {
+      destination  = "/etc/datadog-agent/"
+      datadog_yaml = "<ROOT_MODULE_PATH>/datadog.yaml"
+      conf_d       = "<ROOT_MODULE_PATH>/conf.d/"
+      check_d      = "<ROOT_MODULE_PATH>/check.d/"
     })
   })
   description = "Datadog global configuration object."
