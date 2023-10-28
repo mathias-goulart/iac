@@ -113,5 +113,6 @@ terraform.rc
 
 *.key
 *.pub
-
+*.pem
+*.cer
 *.cred
