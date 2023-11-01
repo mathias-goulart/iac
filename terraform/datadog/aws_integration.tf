@@ -101,14 +101,14 @@ data "aws_iam_policy_document" "datadog_aws_integration" {
 }
 
 resource "aws_iam_policy" "datadog_aws_integration_policy" {
-  count       = var.aws_integration.enabled ? 1 : 0
-  name_prefix = var.aws_integration.policy_name
-  policy      = data.aws_iam_policy_document.datadog_aws_integration.json
+  count  = var.aws_integration.enabled ? 1 : 0
+  name   = var.aws_integration.policy_name
+  policy = data.aws_iam_policy_document.datadog_aws_integration.json
 }
 
 resource "aws_iam_role" "datadog_aws_integration_role" {
   count              = var.aws_integration.enabled ? 1 : 0
-  name_prefix        = var.aws_integration.role_name
+  name               = var.aws_integration.role_name
   description        = "Role for Datadog AWS Integration"
   assume_role_policy = data.aws_iam_policy_document.datadog_aws_integration_assume_role.json
 }

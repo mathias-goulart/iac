@@ -9,16 +9,29 @@ variable "datadog_config" {
     ])
     ssh_private_key_path = optional(string, "<ROOT_MODULE_PATH>/ssh_keys")
     agent_configuration = optional(object({
-      destination  = string
-      datadog_yaml = string
-      conf_d       = string
-      check_d      = string
+      destination = string
+      source      = string
+      version     = string
+      files       = list(string)
       }), {
-      destination  = "/etc/datadog-agent/"
-      datadog_yaml = "<ROOT_MODULE_PATH>/datadog.yaml"
-      conf_d       = "<ROOT_MODULE_PATH>/conf.d/"
-      check_d      = "<ROOT_MODULE_PATH>/check.d/"
+      destination = "/etc/datadog-agent/"
+      source      = "<ROOT_MODULE_PATH>/dd_agent/"
+      version     = "7.0.0"
+      files = [
+        "datadog.yaml",
+        "conf.d/apache.d/conf.yaml",
+        "conf.d/cpu.d/conf.yaml",
+        "conf.d/disk.d/conf.yaml",
+        "conf.d/memory.d/conf.yaml",
+        "conf.d/mysql.d/conf.yaml",
+        "conf.d/network.d/conf.yaml",
+        "conf.d/systemd.d/conf.yaml"
+      ]
     })
+    monitors = optional(object({
+      warning  = optional(number, 75)
+      critical = optional(number, 85)
+    }), {})
   })
   description = "Datadog global configuration object."
 }
@@ -37,6 +50,7 @@ variable "server_list" {
   type = list(object({
     name       = string
     private_ip = string
+    alias      = optional(string)
     datadog_agent = optional(object({
       key     = string
       install = optional(bool, true)
@@ -45,9 +59,18 @@ variable "server_list" {
     ssh = optional(object({
       username         = optional(string, "ubuntu")
       password         = optional(string)
-      private_key_path = optional(string)
+      private_key_path = optional(string, "<SSH_DEFAULT_KEY_PATH>/<SERVER_NAME>.pem")
       port             = optional(number, 22)
     }))
+    mysql_monitor = optional(object({
+      host     = string
+      port     = optional(number, 3306)
+      username = string
+      password = string
+    }))
+    disk_monitor = optional(list(string), [
+      "/web_data", "/databases", "/", "/logging"
+    ])
   }))
 }
 
