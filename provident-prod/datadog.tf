@@ -32,6 +32,11 @@ module "datadog" {
 
   datadog_config = {
     api_site = "datadoghq.eu"
+    agent_configuration = {
+      destination = "/etc/datadog-agent/"
+      source      = "<ROOT_MODULE_PATH>/dd_agent/"
+      version     = "7.0.4"
+    }
   }
 
   aws_integration = {
@@ -39,7 +44,7 @@ module "datadog" {
     account_id = data.aws_caller_identity.current.account_id
   }
 
-  server_list = []
+  server_list = var.server_list
 
   agent_keys = {
     aws_agent = {

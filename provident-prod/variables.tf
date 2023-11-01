@@ -9,3 +9,8 @@ variable "datadog_app_key" {
   sensitive   = true
   description = "The Datadog APP Key"
 }
+
+variable "server_list" {
+  type        = list(any)
+  description = "This doesn't need to be here. Only added because I'm using a public repo"
+}

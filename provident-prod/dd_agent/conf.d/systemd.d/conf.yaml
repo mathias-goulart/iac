@@ -1,0 +1,30 @@
+init_config:
+
+instances:
+  - unit_names:
+      - apache2.service    # Or nginx.service if Nginx is used
+      - php7.4-fpm.service # Ensure this matches your PHP version
+      # Add other services that are crucial for your SugarCRM instance
+      # such as:
+      # - memcached.service
+      # - redis-server.service
+      # - postfix.service (if the server is handling mail)
+      # - elasticsearch.service (if using Elasticsearch)
+
+    # Here you can configure the path to the systemd private socket if necessary
+    # private_socket: /run/systemd/private
+
+    # Define substate status mappings if you wish to be alerted on specific substates
+    substate_status_mapping:
+      apache2.service:
+        running: ok
+        exited: critical
+      php7.4-fpm.service:
+        running: ok
+        exited: critical
+      # Continue with other services as necessary
+
+    # Tags to apply to all metrics, service checks, and events
+    tags:
+      - role:sugarcrm
+      - instance:production
