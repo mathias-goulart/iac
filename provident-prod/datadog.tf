@@ -35,7 +35,19 @@ module "datadog" {
     agent_configuration = {
       destination = "/etc/datadog-agent/"
       source      = "<ROOT_MODULE_PATH>/dd_agent/"
-      version     = "7.0.4"
+      version     = "7.0.0"
+      templates = {
+        datadog = "datadog.tpl",
+        mysql_d = "conf.d/mysql.d/conf.tpl",
+      }
+      conf_yaml = {
+        apache_d  = "conf.d/apache.d/conf.yaml",
+        cpu_d     = "conf.d/cpu.d/conf.yaml",
+        disk_d    = "conf.d/disk.d/conf.yaml",
+        memory_d  = "conf.d/memory.d/conf.yaml",
+        network_d = "conf.d/network.d/conf.yaml",
+        systemd_d = "conf.d/systemd.d/conf.yaml"
+      }
     }
   }
 

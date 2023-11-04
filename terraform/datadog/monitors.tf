@@ -30,7 +30,7 @@ resource "datadog_monitor" "monitor_memory_utilization" {
   escalation_message = "Critical Memory usage for instance ${each.value.name} Escalation message. Notify: ${local.notification_users_str}"
   priority           = 1
 
-  query = "avg(last_1h):avg:system.mem.used{host:${each.value.alias != null ? each.value.alias : each.value.name}} / avg:system.mem.total{host:${each.value.alias != null ? each.value.alias : each.value.name}} * 100 > ${local.datadog_global_config.monitors.critical}"
+  query = "avg(last_5m):avg:system.mem.used{host:${lower(each.value.name)}} / avg:system.mem.total{host:${lower(each.value.name)}} * 100 > ${local.datadog_global_config.monitors.critical}"
 
   monitor_thresholds {
     warning  = local.datadog_global_config.monitors.warning

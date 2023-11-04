@@ -12,21 +12,24 @@ variable "datadog_config" {
       destination = string
       source      = string
       version     = string
-      files       = list(string)
+      templates   = map(string)
+      conf_yaml   = map(string)
       }), {
       destination = "/etc/datadog-agent/"
       source      = "<ROOT_MODULE_PATH>/dd_agent/"
       version     = "7.0.0"
-      files = [
-        "datadog.yaml",
-        "conf.d/apache.d/conf.yaml",
-        "conf.d/cpu.d/conf.yaml",
-        "conf.d/disk.d/conf.yaml",
-        "conf.d/memory.d/conf.yaml",
-        "conf.d/mysql.d/conf.yaml",
-        "conf.d/network.d/conf.yaml",
-        "conf.d/systemd.d/conf.yaml"
-      ]
+      templates = {
+        datadog = "datadog.tpl",
+        mysql_d = "conf.d/mysql.d/conf.tpl",
+      }
+      conf_yaml = {
+        apache_d  = "conf.d/apache.d/conf.yaml",
+        cpu_d     = "conf.d/cpu.d/conf.yaml",
+        disk_d    = "conf.d/disk.d/conf.yaml",
+        memory_d  = "conf.d/memory.d/conf.yaml",
+        network_d = "conf.d/network.d/conf.yaml",
+        systemd_d = "conf.d/systemd.d/conf.yaml"
+      }
     })
     monitors = optional(object({
       warning  = optional(number, 75)

@@ -7,14 +7,6 @@ check "ssh_defined_install_agent" {
   }
 }
 
-data "local_file" "datadog_yaml" {
-  filename = "${local.datadog_global_config.agent_configuration.source}/datadog.yaml"
-}
-
-data "local_file" "mysqld_config" {
-  filename = "${local.datadog_global_config.agent_configuration.source}/conf.d/mysql.d/config.yaml"
-}
-
 resource "null_resource" "datadog_agent_installation" {
   for_each = local.install_datadog_agent_on
 
@@ -56,33 +48,54 @@ resource "null_resource" "datadog_agent_copy_config" {
   }
 
   provisioner "file" {
-    source      = "${local.datadog_global_config.agent_configuration.source}/conf.d/apache.d/conf.yaml"
-    destination = "/tmp/conf.d/apache.d/conf.yaml"
+    destination = "/tmp/${local.datadog_configuration_templates.datadog.final_file}"
+    content = templatefile(local.datadog_configuration_templates.datadog.absolute_path, {
+      dd_agent_api_key  = each.value.dd_agent_key
+      dd_agent_api_site = local.datadog_global_config.api_site
+      server_name       = lower(each.value.name)
+    })
   }
 
   provisioner "file" {
-    source      = "${local.datadog_global_config.agent_configuration.source}/conf.d/disk.d/conf.yaml"
-    destination = "/tmp/conf.d/disk.d/conf.yaml"
+    destination = "/tmp/${local.datadog_configuration_conf_yamls.apache_d.final_file}"
+    source      = local.datadog_configuration_conf_yamls.apache_d.absolute_path
   }
 
   provisioner "file" {
-    destination = "/tmp/conf.d/mysql.d/conf.yaml"
-    content = each.value.mysql_monitor != null ? replace(
-      replace(
-        replace(
-          replace(data.local_file.mysqld_config.content, "DDAGENT_DATABASE_HOST", each.value.mysql_monitor.host),
-          "DDAGENT_DATABASE_USERNAME", each.value.mysql_monitor.username
-        ), "DDAGENT_DATABASE_PASSWORD", each.value.mysql_monitor.password
-      ), "DDAGENT_DATABASE_PORT", each.value.mysql_monitor.port
-    ) : ""
+    destination = "/tmp/${local.datadog_configuration_conf_yamls.cpu_d.final_file}"
+    source      = local.datadog_configuration_conf_yamls.cpu_d.absolute_path
   }
 
   provisioner "file" {
-    destination = "/tmp/datadog.yaml"
-    content = replace(
-      replace(data.local_file.datadog_yaml.content, "DD_AGENT_API_KEY", each.value.dd_agent_key),
-    "DD_AGENT_API_SITE", local.datadog_global_config.api_site)
+    destination = "/tmp/${local.datadog_configuration_conf_yamls.disk_d.final_file}"
+    source      = local.datadog_configuration_conf_yamls.disk_d.absolute_path
   }
+
+  provisioner "file" {
+    destination = "/tmp/${local.datadog_configuration_conf_yamls.memory_d.final_file}"
+    source      = local.datadog_configuration_conf_yamls.memory_d.absolute_path
+  }
+
+  provisioner "file" {
+    destination = "/tmp/${local.datadog_configuration_conf_yamls.network_d.final_file}"
+    source      = local.datadog_configuration_conf_yamls.network_d.absolute_path
+  }
+
+  provisioner "file" {
+    destination = "/tmp/${local.datadog_configuration_conf_yamls.systemd_d.final_file}"
+    source      = local.datadog_configuration_conf_yamls.systemd_d.absolute_path
+  }
+
+  provisioner "file" {
+    destination = "/tmp/${local.datadog_configuration_templates.mysql_d.final_file}"
+    content = each.value.mysql_monitor != null ? templatefile(local.datadog_configuration_conf_yamls.apache_d.absolute_path, {
+      ddagent_database_host     = each.value.mysql_monitor.host
+      ddagent_database_port     = each.value.mysql_monitor.port
+      ddagent_database_username = each.value.mysql_monitor.username
+      ddagent_database_password = each.value.mysql_monitor.password
+    }) : ""
+  }
+
 
   connection {
     type        = "ssh"
@@ -94,8 +107,9 @@ resource "null_resource" "datadog_agent_copy_config" {
   }
 
   triggers = {
-    source  = local.datadog_global_config.agent_configuration.source
-    version = local.datadog_global_config.agent_configuration.version
+    installation_id = null_resource.datadog_agent_installation[each.key].id
+    source          = local.datadog_global_config.agent_configuration.source
+    version         = local.datadog_global_config.agent_configuration.version
   }
 
   depends_on = [null_resource.datadog_agent_installation]
@@ -106,24 +120,14 @@ resource "null_resource" "datadog_agent_config_step2" {
 
   provisioner "remote-exec" {
     when = create
-    inline = [
-      "echo 'Creating backup of the previous configuration'",
-      "cd ${local.datadog_global_config.agent_configuration.destination}",
-      "sudo rm *.bak",
-      "sudo mv datadog.yaml datadog.yaml.bak",
-      "sudo rm conf.d/apache.d/conf.yaml.bak",
-      "sudo mv conf.d/apache.d/conf.yaml conf.d/apache.d.bak",
-      "sudo mv conf.d/disk.d conf.d/disk.d.bak",
-      "echo 'Moving new configuration'",
-      "cd /tmp",
-      "sudo chown -R dd-agent:dd-agent datadog.yaml check.d conf.d",
-      "sudo mv /tmp/datadog.yaml ${local.datadog_global_config.agent_configuration.destination}/",
-      "sudo mv /tmp/conf.d/apache.d ${local.datadog_global_config.agent_configuration.destination}/conf.d/apache.d",
-      "sudo mv /tmp/conf.d/disk.d ${local.datadog_global_config.agent_configuration.destination}/conf.d/disk.d",
+    inline = concat([
+      "sudo chown -R dd-agent:dd-agent datadog.yaml check.d conf.d"
+      ], local.datadog_configuration_commands, [
+      "echo 'Cleaning up temp files'",
+      "sudo rm -rf /tmp/conf.d /tmp/check.d /tmp/datadog.yaml",
       "echo 'Restarting agent service'",
       "sudo systemctl restart datadog-agent"
-    ]
-
+    ])
   }
 
   connection {

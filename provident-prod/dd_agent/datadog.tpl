@@ -8,7 +8,7 @@
 ## Create a new API key here: https://app.datadoghq.com/account/settings
 
 # IMPORTANT: DO NOT REMOVE THE PLACEHOLDER DD_AGENT_API_KEY
-api_key: DD_AGENT_API_KEY
+api_key: ${dd_agent_api_key}
 
 ## @param site - string - optional - default: datadoghq.com
 ## @env DD_SITE - string - optional - default: datadoghq.com
@@ -20,7 +20,7 @@ api_key: DD_AGENT_API_KEY
 ## Set to 'ddog-gov.com' to send data to the US1-FED site.
 
 # IMPORTANT: DO NOT REMOVE THE PLACEHOLDER DD_AGENT_API_SITE
-site: DD_AGENT_API_SITE
+site: ${dd_agent_api_site}
 
 ## @param dd_url - string - optional - default: https://app.datadoghq.com
 ## @env DD_DD_URL - string - optional - default: https://app.datadoghq.com
@@ -129,9 +129,8 @@ hostname_fqdn: false
 ##
 ## Learn more about tagging: https://docs.datadoghq.com/tagging/
 #
-# tags:
-#   - team:infra
-#   - <TAG_KEY>:<TAG_VALUE>
+tags:
+  - host:${server_name}
 
 ## @param extra_tags  - list of key:value elements - optional
 ## @env DD_EXTRA_TAGS - space separated list of strings - optional

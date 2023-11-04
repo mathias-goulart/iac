@@ -13,11 +13,11 @@ locals {
       ssh = merge(v.ssh, {
         private_key_path = v.ssh.private_key_path != null ? "${replace(replace(v.ssh.private_key_path, "<SERVER_NAME>", v.name), "<SSH_DEFAULT_KEY_PATH>", local.datadog_global_config.ssh_private_key_path)}" : null
       })
-      mkdir_command = [
-        "mkdir -p /tmp/conf.d/apache.d",
-        "mkdir -p /tmp/conf.d/disk.d",
-        v.mysql_monitor != null ? "mkdir -p /tmp/conf.d/mysql.d" : "echo 'Server is not Database monitor'"
-      ]
+      mkdir_command = flatten([
+        for k, v in local.datadog_configuration_files : [
+          "mkdir -p /tmp/${v.base_dir}"
+        ]
+      ])
     }) if v.datadog_agent != null ? v.datadog_agent.install : false
   }
 
@@ -41,15 +41,35 @@ locals {
       destination = endswith(var.datadog_config.agent_configuration.destination, "/") ? var.datadog_config.agent_configuration.destination : "${var.datadog_config.agent_configuration.destination}/"
       version     = var.datadog_config.agent_configuration.version
       source      = replace(var.datadog_config.agent_configuration.source, "<ROOT_MODULE_PATH>", path.root)
-      files       = var.datadog_config.agent_configuration.files
+      templates   = var.datadog_config.agent_configuration.templates
+      conf_yaml   = var.datadog_config.agent_configuration.conf_yaml
     }
   })
 
-  datadog_configuration_files_cmd = flatten([
-    for file in local.datadog_global_config.agent_configuration.files : [
-      "sudo rm ${local.datadog_global_config.agent_configuration.destination}${file}.bak",
-      "sudo mv ${local.datadog_global_config.agent_configuration.destination}${file} ${local.datadog_global_config.agent_configuration.destination}${file}.bak",
-      "sudo mv /tmp/${file} ${local.datadog_global_config.agent_configuration.destination}${file}"
+  datadog_configuration_conf_yamls = {
+    for k, v in local.datadog_global_config.agent_configuration.conf_yaml : k => {
+      absolute_path = "${local.datadog_global_config.agent_configuration.source}/${v}"
+      final_file    = v
+      base_dir      = dirname(v)
+    }
+  }
+  datadog_configuration_templates = {
+    for k, v in local.datadog_global_config.agent_configuration.templates : k => {
+      absolute_path = "${local.datadog_global_config.agent_configuration.source}/${v}"
+      final_file    = replace(v, ".tpl", ".yaml")
+      base_dir      = dirname(v)
+    }
+  }
+  datadog_configuration_files = merge(local.datadog_configuration_conf_yamls, local.datadog_configuration_templates)
+  datadog_configuration_commands = flatten([
+    for k, v in local.datadog_configuration_files : [
+      "echo 'Copying ${v.final_file}'",
+      "sudo rm ${local.datadog_global_config.agent_configuration.destination}${v.final_file}.bak",
+      "sudo mv ${local.datadog_global_config.agent_configuration.destination}${v.final_file} ${local.datadog_global_config.agent_configuration.destination}${v.final_file}.bak",
+      "sudo mkdir -p ${local.datadog_global_config.agent_configuration.destination}${v.base_dir}",
+      "sudo mv /tmp/${v.final_file} ${local.datadog_global_config.agent_configuration.destination}${v.final_file}",
+      "sudo chown -R dd-agent:dd-agent ${local.datadog_global_config.agent_configuration.destination}${v.base_dir}",
+      "echo '${v.final_file} copied'"
     ]
   ])
 

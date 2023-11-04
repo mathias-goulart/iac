@@ -29,22 +29,22 @@ instances:
     ## NOTE: Even if the host is "localhost", the agent connects to MySQL using TCP/IP, unless you also
     ## provide a value for the sock key (below).
     #
-  - host: DDAGENT_DATABASE_HOST
+  - host: ${ddagent_database_host}
 
     ## @param username - string - optional
     ## Username used to connect to MySQL.
     #
-    username: DDAGENT_DATABASE_USERNAME
+    username: ${ddagent_database_username}
 
     ## @param password - string - optional
     ## Password associated to the MySQL user.
     #
-    password: DDAGENT_DATABASE_PASSWORD
+    password: ${ddagent_database_password}
 
     ## @param port - number - optional - default: 3306
     ## Port to use when connecting to MySQL.
     #
-    port: DDAGENT_DATABASE_PORT
+    port: ${ddagent_database_port}
 
     ## @param reported_hostname - string - optional
     ## Set the reported hostname for this instance. This value overrides the hostname detected by the Agent
