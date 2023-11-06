@@ -58,6 +58,8 @@ module "datadog" {
 
   server_list = var.server_list
 
+  cluster_db = var.cluster_list
+
   agent_keys = {
     aws_agent = {
       store_in_secrets = true

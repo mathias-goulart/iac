@@ -77,6 +77,25 @@ variable "server_list" {
   }))
 }
 
+variable "cluster_db" {
+  type = list(object({
+    name                = string
+    host                = string
+    port                = number
+    monitor_replication = optional(bool, true)
+    databases = list(object({
+      name     = string
+      username = string
+      password = string
+    }))
+    db_instances = list(object({
+      name = string
+      type = optional(string, "writer")
+    }))
+  }))
+  description = "A list of the databases to be monitored."
+}
+
 variable "agent_keys" {
   type = map(object({
     store_in_secrets = optional(bool, false)

@@ -6,6 +6,10 @@ locals {
     for server in var.server_list :
     replace(server.name, regex("[^a-zA-Z0-9]", server.name), "_") => server
   }
+  sanitized_database_map = {
+    for db in var.cluster_db :
+    replace(db.name, regex("[^a-zA-Z0-9]", db.name), "_") => db
+  }
   install_datadog_agent_on = {
     for k, v in local.sanitized_server_map : k => merge(v, {
       install_agent_script = replace(var.datadog_config.install_script_base_name, "<VERSION>", v.datadog_agent.version)
@@ -19,6 +23,9 @@ locals {
         ]
       ])
     }) if v.datadog_agent != null ? v.datadog_agent.install : false
+  }
+  monitored_dabases = {
+    for k, v in local.sanitized_database_map : k => v if v.monitor_replication
   }
 
   monitors_disk_per_server = flatten([

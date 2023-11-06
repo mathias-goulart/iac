@@ -1,6 +1,8 @@
-# AWS Costs monitors
+# ------------------------------------------------------
+# SERVER MONITORING
+# ------------------------------------------------------
 
-# PHP Services monitors
+# CPU Utilization
 resource "datadog_monitor" "monitor_cpu_utilization" {
   for_each           = local.install_datadog_agent_on
   name               = "${each.value.name} CPU Monitor"
@@ -30,7 +32,7 @@ resource "datadog_monitor" "monitor_memory_utilization" {
   escalation_message = "Critical Memory usage for instance ${each.value.name} Escalation message. Notify: ${local.notification_users_str}"
   priority           = 1
 
-  query = "avg(last_5m):avg:system.mem.used{host:${lower(each.value.name)}} / avg:system.mem.total{host:${lower(each.value.name)}} * 100 > ${local.datadog_global_config.monitors.critical}"
+  query = "avg(last_5m):avg:system.mem.pct_usable{host:${lower(each.value.name)}} > ${local.datadog_global_config.monitors.critical}"
 
   monitor_thresholds {
     warning  = local.datadog_global_config.monitors.warning
