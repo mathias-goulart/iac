@@ -11,7 +11,7 @@ data "aws_iam_policy_document" "datadog_aws_integration_assume_role" {
       variable = "sts:ExternalId"
 
       values = [
-        "${datadog_integration_aws.sandbox[0].external_id}"
+        "${datadog_integration_aws.datadog_aws_integration[0].external_id}"
       ]
     }
   }
@@ -100,28 +100,28 @@ data "aws_iam_policy_document" "datadog_aws_integration" {
   }
 }
 
-resource "aws_iam_policy" "datadog_aws_integration" {
-  count  = var.enabled_datadog_integration ? 1 : 0
-  name   = "DatadogAWSIntegrationPolicy"
+resource "aws_iam_policy" "datadog_aws_integration_policy" {
+  count  = var.aws_integration.enabled ? 1 : 0
+  name   = var.aws_integration.policy_name
   policy = data.aws_iam_policy_document.datadog_aws_integration.json
 }
 
-resource "aws_iam_role" "datadog_aws_integration" {
-  count              = var.enabled_datadog_integration ? 1 : 0
-  name               = "DatadogAWSIntegrationRole"
+resource "aws_iam_role" "datadog_aws_integration_role" {
+  count              = var.aws_integration.enabled ? 1 : 0
+  name               = var.aws_integration.role_name
   description        = "Role for Datadog AWS Integration"
   assume_role_policy = data.aws_iam_policy_document.datadog_aws_integration_assume_role.json
 }
 
-resource "aws_iam_role_policy_attachment" "datadog_aws_integration" {
-  count      = var.enabled_datadog_integration ? 1 : 0
-  role       = aws_iam_role.datadog_aws_integration[0].name
-  policy_arn = aws_iam_policy.datadog_aws_integration[0].arn
+resource "aws_iam_role_policy_attachment" "datadog_aws_integration_attachment" {
+  count      = var.aws_integration.enabled ? 1 : 0
+  role       = aws_iam_role.datadog_aws_integration_role[0].name
+  policy_arn = aws_iam_policy.datadog_aws_integration_policy[0].arn
 }
 
-resource "datadog_integration_aws" "sandbox" {
-  count      = var.enabled_datadog_integration ? 1 : 0
+resource "datadog_integration_aws" "datadog_aws_integration" {
+  count      = var.aws_integration.enabled ? 1 : 0
   provider   = datadog
-  account_id = "246118185699"
-  role_name  = "DatadogAWSIntegrationRole"
+  account_id = var.aws_integration.account_id
+  role_name  = var.aws_integration.role_name
 }

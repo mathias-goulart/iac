@@ -17,7 +17,12 @@ module "containers" {
   }
 }
 
-module "iam" {
+moved {
+  from = module.iam
+  to   = module.ecr_users
+}
+
+module "ecr_users" {
   source = "../terraform/iam"
 
   providers = {

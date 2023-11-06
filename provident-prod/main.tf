@@ -12,7 +12,7 @@ terraform {
 
 locals {
   # Assuming the provided output is named "user_secrets"
-  user_secrets_data = module.iam.user_secrets
+  user_secrets_data = module.ecr_users.user_secrets
 
   # Prepare the content for each user
   user_content = {
