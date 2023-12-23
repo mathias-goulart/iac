@@ -35,7 +35,7 @@ module "datadog" {
     agent_configuration = {
       destination = "/etc/datadog-agent/"
       source      = "<ROOT_MODULE_PATH>/dd_agent/"
-      version     = "7.0.0"
+      version     = "7.0.2"
       templates = {
         datadog = "datadog.tpl",
         mysql_d = "conf.d/mysql.d/conf.tpl",

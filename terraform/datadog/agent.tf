@@ -26,12 +26,12 @@ resource "null_resource" "datadog_agent_installation" {
     }
   }
 
-  provisioner "remote-exec" {
-    when = destroy
-    inline = [
-      "sudo apt-get remove datadog-agent -y"
-    ]
-  }
+  # provisioner "remote-exec" {
+  #   when = destroy
+  #   inline = [
+  #     "sudo apt-get remove datadog-agent -y"
+  #   ]
+  # }
 
   triggers = {
     datadog_key   = each.value.dd_agent_key
